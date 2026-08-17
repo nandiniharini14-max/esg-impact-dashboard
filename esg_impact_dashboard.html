@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ESG Impact Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F6F4EF;
+    --panel:#FFFFFF;
+    --line:#E4E0D6;
+    --ink:#1F2A24;
+    --muted:#6B7A70;
+
+    --env:#1E8F5F;      /* emerald green */
+    --env-soft:#E4F3EA;
+    --people:#2563A6;   /* professional blue */
+    --people-soft:#E6EFF8;
+    --gov:#B8862E;      /* muted gold */
+    --gov-soft:#F6EDDB;
+    --biz:#C1592F;      /* terracotta */
+    --biz-soft:#F7E7DE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    padding:44px 24px 90px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* HERO */
+  .hero{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:28px;
+    padding-bottom:36px;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:8px;
+    align-items:end;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    color:var(--env);
+    text-transform:uppercase;
+    margin-bottom:14px;
+    font-weight:700;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:36px;
+    line-height:1.18;
+    margin-bottom:14px;
+    color:var(--ink);
+  }
+  .hero p{color:var(--muted);font-size:15px;max-width:48ch;line-height:1.6;}
+  .hero-metric{
+    background:var(--ink);
+    color:#fff;
+    border-radius:6px;
+    padding:26px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-metric::before{
+    content:"";
+    position:absolute;top:0;left:0;height:5px;width:100%;
+    background:linear-gradient(90deg,var(--env),var(--people),var(--gov),var(--biz));
+  }
+  .hero-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:52px;
+    font-weight:700;
+    line-height:1;
+  }
+  .hero-label{color:#C9D6CE;font-size:12.5px;margin-top:10px;text-transform:uppercase;letter-spacing:0.06em;}
+  .hero-sub{font-size:12px;color:#8FA396;margin-top:16px;font-family:'JetBrains Mono',monospace;}
+
+  /* PILLAR NAV */
+  .nav-row{
+    display:flex;
+    gap:10px;
+    margin:40px 0 34px;
+    flex-wrap:wrap;
+  }
+  .nav-pill{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    font-weight:600;
+    padding:7px 14px;
+    border-radius:20px;
+    letter-spacing:0.03em;
+  }
+
+  /* PILLAR SECTIONS */
+  .pillar{margin-bottom:52px;}
+  .pillar-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:20px;
+  }
+  .pillar-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);}
+  .pillar-tag{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);font-weight:700;}
+  .pillar-head h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:var(--ink);}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-top:3px solid var(--accent);
+    border-radius:6px;
+    padding:18px;
+    box-shadow:0 1px 2px rgba(31,42,36,0.04);
+  }
+  .card-val{font-family:'Space Grotesk',sans-serif;font-size:25px;font-weight:700;color:var(--ink);}
+  .card-label{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.4;}
+  .card-delta{font-size:11px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent);}
+
+  .chart-row{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-top:14px;}
+  .chart-card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;height:250px;}
+  .chart-title{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;}
+
+  footer{
+    margin-top:56px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr;}
+    .grid{grid-template-columns:repeat(2,1fr);}
+    .chart-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">// ESG &amp; Impact Dashboard — FY26</div>
+      <h1>Organizational Impact, Mapped for Donors &amp; Investors</h1>
+      <p>A single view of environmental performance, social impact, governance integrity, and responsible business practice — built to support funding and partnership decisions. Figures shown are placeholder values for framework review.</p>
+    </div>
+    <div class="hero-metric">
+      <div class="hero-num">87</div>
+      <div class="hero-label">Composite Impact Score / 100</div>
+      <div class="hero-sub">Blended across all 4 pillars · up 6 pts YoY</div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <span class="nav-pill" style="background:var(--env-soft);color:var(--env);">● Environmental</span>
+    <span class="nav-pill" style="background:var(--people-soft);color:var(--people);">● People &amp; Social</span>
+    <span class="nav-pill" style="background:var(--gov-soft);color:var(--gov);">● Governance</span>
+    <span class="nav-pill" style="background:var(--biz-soft);color:var(--biz);">● Responsible Business</span>
+  </div>
+
+  <!-- ENVIRONMENTAL -->
+  <div class="pillar" style="--accent:var(--env)">
+    <div class="pillar-head"><span class="pillar-dot"></span><span class="pillar-tag">01</span><h2>Environmental Impact</h2></div>
+    <div class="grid">
+      <div class="card"><div class="card-val">1,240 t</div><div class="card-label">Waste responsibly processed, YTD</div><div class="card-delta">▲ 14% vs last year</div></div>
+      <div class="card"><div class="card-val">3,860 t</div><div class="card-label">CO₂e emissions avoided</div><div class="card-delta">▲ 9%</div></div>
+      <div class="card"><div class="card-val">1.2M L</div><div class="card-label">Water saved via efficient processes</div><div class="card-delta">▲ 6%</div></div>
+      <div class="card"><div class="card-val">64%</div><div class="card-label">Energy from renewable sources</div><div class="card-delta">▲ 11 pts</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-card"><div class="chart-title">Energy, water &amp; waste — trend by quarter</div><canvas id="envChart"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Waste diverted vs landfilled</div><canvas id="envDonut"></canvas></div>
+    </div>
+  </div>
+
+  <!-- PEOPLE -->
+  <div class="pillar" style="--accent:var(--people)">
+    <div class="pillar-head"><span class="pillar-dot"></span><span class="pillar-tag">02</span><h2>People &amp; Social Impact</h2></div>
+    <div class="grid">
+      <div class="card"><div class="card-val">340</div><div class="card-label">Livelihoods supported / formalized</div><div class="card-delta">▲ 22%</div></div>
+      <div class="card"><div class="card-val">28%</div><div class="card-label">Avg. fair-income increase</div><div class="card-delta">▲ 4 pts</div></div>
+      <div class="card"><div class="card-val">41%</div><div class="card-label">Women in workforce</div><div class="card-delta">▲ 5 pts</div></div>
+      <div class="card"><div class="card-val">6,200 hrs</div><div class="card-label">Learning &amp; well-being programs delivered</div><div class="card-delta">▲ 18%</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-card"><div class="chart-title">Workforce growth, by quarter</div><canvas id="peopleChart"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Income uplift vs baseline (index)</div><canvas id="wageChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- GOVERNANCE -->
+  <div class="pillar" style="--accent:var(--gov)">
+    <div class="pillar-head"><span class="pillar-dot"></span><span class="pillar-tag">03</span><h2>Governance</h2></div>
+    <div class="grid">
+      <div class="card"><div class="card-val">100%</div><div class="card-label">Regulatory &amp; data-protection compliance</div><div class="card-delta">on target</div></div>
+      <div class="card"><div class="card-val">12/12</div><div class="card-label">Statutory &amp; ESG audits passed</div><div class="card-delta">clean record</div></div>
+      <div class="card"><div class="card-val">0</div><div class="card-label">Data privacy incidents</div><div class="card-delta">on target</div></div>
+      <div class="card"><div class="card-val">4</div><div class="card-label">Transparency reports published / yr</div><div class="card-delta">quarterly cadence</div></div>
+    </div>
+  </div>
+
+  <!-- RESPONSIBLE BUSINESS -->
+  <div class="pillar" style="--accent:var(--biz)">
+    <div class="pillar-head"><span class="pillar-dot"></span><span class="pillar-tag">04</span><h2>Responsible Business</h2></div>
+    <div class="grid">
+      <div class="card"><div class="card-val">76%</div><div class="card-label">Vendors on responsible-sourcing policy</div><div class="card-delta">▲ 12 pts</div></div>
+      <div class="card"><div class="card-val">58</div><div class="card-label">Sustainable supply partners onboarded</div><div class="card-delta">▲ 9</div></div>
+      <div class="card"><div class="card-val">19%</div><div class="card-label">Logistics emissions reduced</div><div class="card-delta">▲ 5 pts</div></div>
+      <div class="card"><div class="card-val">22,400</div><div class="card-label">Units reused / upcycled</div><div class="card-delta">▲ 31%</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-card"><div class="chart-title">Sourcing compliance, by vendor tier</div><canvas id="bizChart"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Reuse vs recycle vs dispose (units)</div><canvas id="bizDonut"></canvas></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>SOURCE — internal operations &amp; HR data (illustrative) · benchmarked against sector peers</span>
+    <span>FY26 · placeholder framework, ready for live data</span>
+  </footer>
+
+</div>
+
+<script>
+Chart.defaults.color = '#6B7A70';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+const grid = {color:'#E4E0D6'};
+
+new Chart(document.getElementById('envChart'), {
+  type:'bar',
+  data:{labels:['Q1','Q2','Q3','Q4'],
+    datasets:[
+      {label:'Waste (t)',data:[260,300,330,350],backgroundColor:'#1E8F5F',borderRadius:3},
+      {label:'CO₂e avoided (t x10)',data:[70,84,95,102],backgroundColor:'#8FCFAF',borderRadius:3}
+    ]},
+  options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{grid}}}
+});
+new Chart(document.getElementById('envDonut'), {
+  type:'doughnut',
+  data:{labels:['Diverted','Landfilled'],datasets:[{data:[82,18],backgroundColor:['#1E8F5F','#E4E0D6'],borderWidth:0}]},
+  options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},cutout:'68%'}
+});
+new Chart(document.getElementById('peopleChart'), {
+  type:'line',
+  data:{labels:['Q1','Q2','Q3','Q4'],
+    datasets:[{data:[180,240,290,340],borderColor:'#2563A6',backgroundColor:'rgba(37,99,166,0.12)',fill:true,tension:0.35}]},
+  options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid}}}
+});
+new Chart(document.getElementById('wageChart'), {
+  type:'bar',
+  data:{labels:['Baseline','FY25','FY26'],datasets:[{data:[100,114,128],backgroundColor:'#2563A6',borderRadius:3}]},
+  options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid}}}
+});
+new Chart(document.getElementById('bizChart'), {
+  type:'bar',
+  data:{labels:['Tier 1','Tier 2','Tier 3'],
+    datasets:[{data:[92,74,58],backgroundColor:'#C1592F',borderRadius:3}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid},y:{grid:{display:false}}}}
+});
+new Chart(document.getElementById('bizDonut'), {
+  type:'doughnut',
+  data:{labels:['Reused','Recycled','Disposed'],
+    datasets:[{data:[22400,41200,3100],backgroundColor:['#C1592F','#E8A87C','#E4E0D6'],borderWidth:0}]},
+  options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},cutout:'68%'}
+});
+</script>
+</body>
+</html>
